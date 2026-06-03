@@ -1,0 +1,71 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+dist/
+build/
+
+# ===== Virtual Environment =====
+.venv/
+venv/
+env/
+ENV/
+
+# ===== uv =====
+# uv.lock 是否提交有争议:
+# - 应用项目(我们这种)应该提交,保证环境一致
+# - 库项目通常不提交
+# 我们提交它。
+# uv.lock  ← 不忽略
+
+# ===== Environment Variables (敏感!) =====
+.env
+.env.local
+.env.*.local
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ===== Testing =====
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ===== Type Checkers =====
+.mypy_cache/
+.ruff_cache/
+
+# ===== Project Specific =====
+# 向量数据库(可能很大,且可以重建)
+data/vector_store/*
+!data/vector_store/.gitkeep
+
+# 原始数据集(如果太大,可以不传)
+# data/raw/*
+# !data/raw/.gitkeep
+
+# 日志
+logs/
+*.log
+
+# 临时文件
+tmp/
+temp/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# 模型文件(如果本地存)
+*.pt
+*.bin
+*.gguf
+*.safetensors
