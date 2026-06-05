@@ -9,7 +9,12 @@ authors = [
 ]
 license = { text = "MIT" }
 keywords = ["cdss", "llm", "agent", "rag", "clinical-pathway", "healthcare-ai"]
-dependencies = []
+dependencies = [
+    "fastapi>=0.136.3",
+    "pydantic-settings>=2.14.1",
+    "structlog>=25.5.0",
+    "uvicorn[standard]>=0.48.0",
+]
 
 [dependency-groups]
 dev = [
