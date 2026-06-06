@@ -8,18 +8,22 @@ All configuration should be accessed through the `get_settings()` function.
 所有配置都应该通过`get_settings()`函数访问。
 """
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Project root is 3 levels up from this file: src/cdss/core/config.py
+_PROJECT_ROOT = Path(__file__).parents[3]
+
 class Settings(BaseSettings):
     """Application settings. Auto-loaded from environment variables and .env file."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_PROJECT_ROOT / ".env",
         env_file_encoding="utf-8",
-        case_sensitive="False",
+        case_sensitive=False,
         extra="ignore", #忽略 .env 里多余的变量, 避免报错
     )
 

@@ -21,6 +21,8 @@ from fastapi import FastAPI
 
 from cdss.core.config import get_settings
 from cdss.core.logging import get_logger, configure_logging
+from cdss.api.chat import router as chat_router
+
 
 
 @asynccontextmanager
@@ -49,6 +51,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(chat_router)
 
 @app.get("/health", tags=["system"])
 async def health_check() -> dict[str, str]:
