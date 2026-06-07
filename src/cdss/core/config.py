@@ -34,8 +34,8 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     # LLM Provider Selection
-    default_llm_provider: Literal["deepseek", "openai", "qwen"] = "qwen"
-    default_llm_model: str = "qwen-turbo"
+    default_llm_provider: Literal["deepseek", "openai", "qwen"] = "deepseek"
+    default_llm_model: str = "deepseek-chat"
 
     dashscope_api_key: str | None = None
     dashscope_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"

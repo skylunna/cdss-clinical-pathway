@@ -41,6 +41,10 @@ class LLMClient:
         self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
         self._default_model = default_model
 
+    @property
+    def default_model(self) -> str:
+        return self._default_model
+
     async def chat(self, request: ChatRequest) -> ChatResponse:
         """
         发送聊天完成请求
@@ -54,12 +58,18 @@ class LLMClient:
             temperature=request.temperature,
         )
 
+        # Build kwargs; JSON mode is opt-in
+        extra_kwargs: dict = {}
+        if request.json_mode:
+            extra_kwargs["response_format"] = {"type": "json_object"}
+
         try:
             response = await self._client.chat.completions.create(
                 model=model,
                 messages=[m.to_openai() for m in request.messages],
                 temperature=request.temperature,
                 max_tokens=request.max_tokens,
+                **extra_kwargs,
             )
         except (APIError, APITimeoutError, RateLimitError) as e:
             logger.error("llm_request_failed", model=model, error=str(e))

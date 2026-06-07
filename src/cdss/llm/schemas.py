@@ -33,10 +33,16 @@ class ChatRequest(BaseModel):
 
     messages: list[Message]
     model: str | None = Field(
-        default=None, description="Model name. If None, use the default configured model."
+        default=None,
+        description="Model name. If None, use the default configured model."
     )
     temperature: float = Field(default=0.3, ge=0.0, le=2.0)
     max_tokens: int | None = Field(default=None, gt=0)
+    json_mode: bool = Field(
+        default=False,
+        description="如果为真，则将 response_format 设置为 JSON 对象。 "
+                    "提示必须包含“JSON”（OpenAI兼容API要求）。"
+    )
 
 
 class TokenUsage(BaseModel):

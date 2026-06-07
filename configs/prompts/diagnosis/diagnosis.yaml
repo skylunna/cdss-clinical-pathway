@@ -1,4 +1,4 @@
-name: diagnosis_recommendation
+name: diagnosis_recommendation_v1
 version: 1
 description: |
   Generates differential diagnoses based on patient information

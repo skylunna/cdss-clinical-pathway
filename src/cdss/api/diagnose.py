@@ -26,10 +26,17 @@ from pydantic import BaseModel, Field
 from cdss.llm.client import LLMClient, LLMError, get_llm_client
 from cdss.llm.prompts import PromptRegistry, get_prompt_registry
 from cdss.llm.schemas import ChatRequest
+from cdss.llm.structured import StructuredOutputError, structured_chat
+from cdss.models.diagnosis import DiagnosisRecommendation
 
 
 router = APIRouter(prefix="/api/v1", tags=["diagnose"])
 
+# 应用于应用层；不属于LLM生成的内容
+DISCLAIMER = (
+    "本建议仅基于所提供信息生成,仅供医师参考,不可替代临床判断。"
+    "最终诊断须由接诊医师结合查体、必要辅助检查综合决定。"
+)
 
 class DiagnoseRequest(BaseModel):
     patient_info: str = Field(
@@ -40,11 +47,12 @@ class DiagnoseRequest(BaseModel):
 
 
 class DiagnoseResponse(BaseModel):
-    diagnosis_markdown: str = Field(description="Markdown格式的鉴别诊断")
+    recommendation: DiagnosisRecommendation
     prompt_name: str
     prompt_version: int
     model: str
     total_tokens: int
+    disclaimer: str
 
 
 @router.post("/diagnose", response_model=DiagnoseResponse)
@@ -64,14 +72,22 @@ async def diagnose(
     )
 
     try:
-        response = await client.chat(chat_request)
+        recommendation, total_tokens = await structured_chat(
+            client=client,
+            request=chat_request,
+            output_schema=DiagnosisRecommendation,
+            max_retries=2,
+        )
+    except StructuredOutputError as e:
+        raise HTTPException(status_code=502, detail=f"Structured output failed: {e}") from e
     except LLMError as e:
         raise HTTPException(status_code=502, detail=str(e)) from e
 
     return DiagnoseResponse(
-        diagnosis_markdown=response.content,
+        recommendation=recommendation,
         prompt_name=template.name,
         prompt_version=template.version,
-        model=response.model,
-        total_tokens=response.usage.total_tokens,
+        model=client.default_model,
+        total_tokens=total_tokens,
+        disclaimer=DISCLAIMER,
     )
