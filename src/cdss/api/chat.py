@@ -6,12 +6,14 @@ This is NOT the production agent endpoint. It's a smoke test.
 聊天端点-用于验证LLM集成的最小测试端点。
 这不是生产代理端点。这是一个烟雾测试。
 """
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from cdss.llm.client import LLMClient, LLMError, get_llm_client
 from cdss.llm.schemas import ChatRequest, ChatResponse
 
 router = APIRouter(prefix="/api/v1", tags=["chat"])
+
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(

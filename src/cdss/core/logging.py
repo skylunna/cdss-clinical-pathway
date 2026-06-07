@@ -7,13 +7,14 @@ Use this everywhere instead of the standard logging module:
     logger = get_logger(__name__)
     logger.info("event_name", key1=value1, key2=value2)
 
-    
+
 使用structlog的结构化日志配置。
 在任何地方都使用它，而不是标准的日志模块：
 从cdss.core.logging导入get_logger
 logger=get_logger（__name__）
 logger.info（“事件名称”，按键1=value1，按键2=value2）
 """
+
 import logging
 import sys
 
@@ -72,6 +73,7 @@ def configure_logging() -> None:
         logger_factory=structlog.PrintLoggerFactory(),
         cache_logger_on_first_use=True,
     )
+
 
 def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     """

@@ -14,6 +14,7 @@ Run with:
     uv run uvicorn cdss.main:app --reload
 
 """
+
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 
@@ -22,27 +23,28 @@ from fastapi import FastAPI
 from cdss.core.config import get_settings
 from cdss.core.logging import get_logger, configure_logging
 from cdss.api.chat import router as chat_router
-
+from cdss.api.diagnose import router as diagnose_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Application startup and shutdown logic."""
     # === startup ===
-    configure_logging() # 配置日志
-    settings = get_settings() # 读取日志
-    logger = get_logger(__name__)   # 创建日志 (带文件名)
+    configure_logging()  # 配置日志
+    settings = get_settings()  # 读取日志
+    logger = get_logger(__name__)  # 创建日志 (带文件名)
     logger.info(
-        "application_starting", # 日志事件名
+        "application_starting",  # 日志事件名
         env=settings.app_env,
         log_level=settings.log_level,
-        default_llm_provider=settings.default_llm_provider
+        default_llm_provider=settings.default_llm_provider,
     )
 
-    yield # Application is running
+    yield  # Application is running
 
     # === shutdown ===
     logger.info("application_shutdown")
+
 
 app = FastAPI(
     title="CDSS Clinical Pathway",
@@ -52,6 +54,8 @@ app = FastAPI(
 )
 
 app.include_router(chat_router)
+app.include_router(diagnose_router)
+
 
 @app.get("/health", tags=["system"])
 async def health_check() -> dict[str, str]:

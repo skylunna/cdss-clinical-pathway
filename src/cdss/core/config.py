@@ -7,6 +7,7 @@ All configuration should be accessed through the `get_settings()` function.
 从环境变量和.env文件加载的应用程序配置。使用pydantic设置进行类型安全配置管理。
 所有配置都应该通过`get_settings()`函数访问。
 """
+
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -17,6 +18,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # Project root is 3 levels up from this file: src/cdss/core/config.py
 _PROJECT_ROOT = Path(__file__).parents[3]
 
+
 class Settings(BaseSettings):
     """Application settings. Auto-loaded from environment variables and .env file."""
 
@@ -24,7 +26,7 @@ class Settings(BaseSettings):
         env_file=_PROJECT_ROOT / ".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
-        extra="ignore", #忽略 .env 里多余的变量, 避免报错
+        extra="ignore",  # 忽略 .env 里多余的变量, 避免报错
     )
 
     # Application
@@ -32,8 +34,11 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     # LLM Provider Selection
-    default_llm_provider: Literal["deepseek", "openai", "qwen"] = "deepseek"
-    default_llm_model: str = "deepseek-chat"
+    default_llm_provider: Literal["deepseek", "openai", "qwen"] = "qwen"
+    default_llm_model: str = "qwen-turbo"
+
+    dashscope_api_key: str | None = None
+    dashscope_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 
     # LLM API Keys (all optional for now, validated on actual use)
     deepseek_api_key: str | None = None
@@ -52,6 +57,7 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         return self.app_env == "development"
 
+
 @lru_cache
 def get_settings() -> Settings:
     """
@@ -65,4 +71,3 @@ def get_settings() -> Settings:
     因此，每个进程只解析一次.env文件。
     """
     return Settings()
-

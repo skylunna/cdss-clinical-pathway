@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "FastAPI: Debug (uv run)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "cdss.main:app",
+                "--reload",
+                "--port", "8000",
+                "--app-dir", "src"  // 保持与你终端一致的参数
+            ],
+            "jinja": true,          // 开启 Jinja2 模板调试支持 (FastAPI 常用)
+            "justMyCode": true      // 调试时只追踪你自己的代码，跳过第三方库
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    // 告诉 Pylance 去 src 目录下寻找模块，消除 import 的黄色/红色波浪线
+    "python.analysis.extraPaths": [
+        "./src"
+    ],
+    // 启用 VSCode 原生的 pytest 测试资源管理器
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "tests"
+    ]
+}

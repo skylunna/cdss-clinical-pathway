@@ -8,6 +8,7 @@ LLM客户端包装器。
 封装OpenAI兼容的SDK，并使用我们自己的类型公开一个干净的接口。
 应用程序中的所有LLM调用都应该通过此客户端。
 """
+
 from functools import lru_cache
 
 from openai import AsyncOpenAI
@@ -26,10 +27,11 @@ class LLMError(Exception):
 
 
 class LLMClient:
-    """ 
+    """
     围绕OpenAI兼容的LLM提供者进行包装。目前支持DeepSeek（以及任何与OpenAI兼容的端点）。
     未来：通过“提供者”字段路由到不同的提供者。
     """
+
     def __init__(
         self,
         api_key: str,
@@ -51,7 +53,7 @@ class LLMClient:
             num_messages=len(request.messages),
             temperature=request.temperature,
         )
-        
+
         try:
             response = await self._client.chat.completions.create(
                 model=model,
@@ -62,7 +64,7 @@ class LLMClient:
         except (APIError, APITimeoutError, RateLimitError) as e:
             logger.error("llm_request_failed", model=model, error=str(e))
             raise LLMError(f"LLM call failed: {e}") from e
-        
+
         choice = response.choices[0]
         usage = response.usage
 
@@ -99,21 +101,15 @@ def get_llm_client() -> LLMClient:
 
     if provider == "deepseek":
         if not settings.deepseek_api_key:
-            raise LLMError(
-                "DEEPSEEK_API_KEY is not configured — set it in your .env file"
-            )
+            raise LLMError("DEEPSEEK_API_KEY is not configured — set it in your .env file")
         return LLMClient(
             api_key=settings.deepseek_api_key,
             base_url=settings.deepseek_base_url,
             default_model=settings.default_llm_model,
         )
-    
+
     if provider == "openai":
         if not settings.openai_api_key:
-            raise LLMError(
-                "OPENAI_API_KEY is not configured — set it in your .env file"
-            )
-        
+            raise LLMError("OPENAI_API_KEY is not configured — set it in your .env file")
+
     raise LLMError(f"Unsupported LLM provider: {provider}")
-
-
