@@ -24,6 +24,7 @@ from cdss.core.config import get_settings
 from cdss.core.logging import get_logger, configure_logging
 from cdss.api.chat import router as chat_router
 from cdss.api.diagnose import router as diagnose_router
+from cdss.api.score import router as score_router
 
 
 @asynccontextmanager
@@ -55,6 +56,7 @@ app = FastAPI(
 
 app.include_router(chat_router)
 app.include_router(diagnose_router)
+app.include_router(score_router)
 
 
 @app.get("/health", tags=["system"])
