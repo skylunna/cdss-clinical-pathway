@@ -16,7 +16,7 @@ from openai import APIError, APITimeoutError, RateLimitError
 
 from cdss.core.config import get_settings
 from cdss.core.logging import get_logger
-from cdss.llm.schemas import ChatRequest, ChatResponse, TokenUsage
+from cdss.llm.schemas import ChatRequest, ChatResponse, TokenUsage, ToolCall
 
 
 logger = get_logger(__name__)
@@ -56,12 +56,17 @@ class LLMClient:
             model=model,
             num_messages=len(request.messages),
             temperature=request.temperature,
+            has_tools=bool(request.tools),
+            json_mode=request.json_mode,
         )
 
-        # Build kwargs; JSON mode is opt-in
+        # 构建可选的参数（仅在设置时包含，以保持负载干净）
         extra_kwargs: dict = {}
         if request.json_mode:
             extra_kwargs["response_format"] = {"type": "json_object"}
+        if request.tools:
+            extra_kwargs["tools"] = request.tools
+            extra_kwargs["tool_choice"] = request.tool_choice or "auto"
 
         try:
             response = await self._client.chat.completions.create(
@@ -77,6 +82,18 @@ class LLMClient:
 
         choice = response.choices[0]
         usage = response.usage
+
+        # 提取调用工具（如有）
+        tool_calls: list[ToolCall] = []
+        if choice.message.tool_calls:
+            for tc in choice.message.tool_calls:
+                tool_calls.append(
+                    ToolCall(
+                        id=tc.id,
+                        name=tc.function.name,
+                        arguments_json=tc.function.arguments,
+                    )
+                )
 
         result = ChatResponse(
             content=choice.message.content or "",
@@ -94,6 +111,7 @@ class LLMClient:
             model=result.model,
             total_tokens=result.usage.total_tokens,
             finish_reason=result.finish_reason,
+            num_tool_calls=len(result.tool_calls),
         )
 
         return result
