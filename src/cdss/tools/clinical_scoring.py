@@ -16,7 +16,7 @@ from cdss.tools.registry import ToolRegistry
 curb65_tool = Tool(
     name=curb65.RULE_NAME,
     description=curb65.RULE_DESCRIPTION,
-    input_schema=curb65.CURB65Criterion,
+    input_schema=curb65.CURB65Input,
     handler=curb65.compute,
 )
 

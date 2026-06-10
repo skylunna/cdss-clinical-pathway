@@ -19,7 +19,7 @@ class ToolCall(BaseModel):
     """LLM请求的工具调用。"""
     id: str = Field(description="本次通话的唯一标识符（工具结果中返回）")
     name: str = Field(description="要调用的工具名称")
-    arguments_json: str = Field(description="要调用的工具名称")
+    arguments_json: str = Field(description="参数的原始JSON字符串")
 
 class Message(BaseModel):
     """A single message in chat conversation
@@ -38,7 +38,7 @@ class Message(BaseModel):
 
     def to_openai(self) -> dict[str, Any]:
         """Convert to OpenAI API format."""
-        msg: dict[str, Any] = {"role": self.content}
+        msg: dict[str, Any] = {"role": self.role}
         if self.content is not None:
             msg["content"] = self.content
         if self.tool_call_id is not None:
@@ -72,6 +72,10 @@ class ChatRequest(BaseModel):
         default=False,
         description="如果为真，则将 response_format 设置为 JSON 对象。 "
                     "提示必须包含“JSON”（OpenAI兼容API要求）。"
+    )
+    tools: list[dict] | None = Field(
+        default=None,
+        description="OpenAI格式的工具定义列表"
     )
     tool_choice: str | None = Field(
         default=None,

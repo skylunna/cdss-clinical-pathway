@@ -56,7 +56,7 @@ class LLMClient:
             model=model,
             num_messages=len(request.messages),
             temperature=request.temperature,
-            has_tools=bool(request.tools),
+            has_tools=bool(request.tool_choice),
             json_mode=request.json_mode,
         )
 
@@ -97,6 +97,7 @@ class LLMClient:
 
         result = ChatResponse(
             content=choice.message.content or "",
+            tool_calls=tool_calls,
             model=response.model,
             usage=TokenUsage(
                 prompt_tokens=usage.prompt_tokens if usage else 0,
