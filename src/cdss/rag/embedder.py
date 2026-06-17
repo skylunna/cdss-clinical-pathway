@@ -21,7 +21,12 @@ Concurrency note:
 """
 import asyncio
 from abc import ABC, abstractmethod
+from functools import lru_cache
 
+from cdss.core.logging import get_logger
+
+
+_logger = get_logger(__name__)
 
 class Embedder(ABC):
     """Abstract base for text embedding providers."""
@@ -63,7 +68,7 @@ class BGEEmbedder(Embedder):
     """
 
     MODEL_NAME = "BAAI/bge-small-zh-v1.5"
-    IMENSION = 512
+    DIMENSION = 512
 
     def __init__(self) -> None:
         # 懒加载：避免将 torch 引入每个 cdss.*导入路径，
@@ -72,22 +77,37 @@ class BGEEmbedder(Embedder):
 
         self._model = SentenceTransformer(self.MODEL_NAME)
 
-        @property
-        def dimension(self) -> int:
-            return self.DIMENSION
+    @property
+    def dimension(self) -> int:
+        return self.DIMENSION
+
+    @property
+    def model_name(self) -> str:
+        return self.MODEL_NAME
+
+    def embed_one(self, text: str) -> list[float]:
+        # encode() returns a numpy array; convert to plain list for Pydantic/JSON safety
+        vec = self._model.encode(text, normalize_embeddings=True)
+        return vec.tolist()
+
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        if not texts:
+            return []
+        matrix = self._model.encode(texts, normalize_embeddings=True, batch_size=32)
+        return matrix.tolist()
         
-        @property
-        def model_name(self) -> str:
-            return self.MODEL_NAME
-        
-        def embed_one(self, text: str) -> list[float]:
-            # encode() 返回一个 numpy 数组；为 Pydantic/JSON 安全起见，转换为普通列表
-            vec = self._model.encode(text, normalize_embeddings=True)
-            return vec.tolist()
-        
-        def embed_batch(self, texts: list[str]) -> list[list[float]]:
-            if not texts:
-                return []
-            matrix = self._model.encode(texts, normalize_embeddings=True, batch_size=32)
-            return matrix.tolist()
-        
+
+
+
+
+@lru_cache
+def get_embedder() -> Embedder:
+    """Get the application-wide embedder (cached singleton)."""
+    _logger.info("loading_embedder", model=BGEEmbedder.MODEL_NAME)
+    embedder = BGEEmbedder()
+    _logger.info(
+        "embedder_loaded",
+        model=embedder.model_name,
+        dimension=embedder.dimension,
+    )
+    return embedder
