@@ -16,6 +16,7 @@ from sqlalchemy import DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from cdss.db.base import Base
+from sqlalchemy import DateTime, Index, Integer, String, Text
 
 
 # Must match the embedding model's output dimension.
@@ -64,6 +65,17 @@ class KnowledgeChunk(Base):
         DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(UTC),
+    )
+
+    # HNSWW 向量索引，用于快速计算余弦相似度搜索。  
+    # 由 Base.metadata.create_all() 创建（幂等性：如果不存在则创建）
+    __table_args__ = (
+        Index(
+            "ix_knowledge_chunks_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
     )
 
     def __repr__(self) -> str:
