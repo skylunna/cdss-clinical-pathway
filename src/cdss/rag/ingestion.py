@@ -77,7 +77,7 @@ class IngestionPipeline:
         ]
 
         # 4. 持续幂等（先删除此源的现有内容，再插入）
-        async with self._seesion_factory() as session:
+        async with self._session_factory() as session:
             repo = KnowledgeChunkRepository(session)
             replaced = await repo.delete_by_source(source)
             await repo.add_all(orm_chunks)

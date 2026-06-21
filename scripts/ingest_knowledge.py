@@ -47,3 +47,6 @@ async def main() -> None:
         total_chunks_added=total_added,
         total_chunks_replaced=total_replaced,
     )
+
+if __name__ == "__main__":
+    asyncio.run(main())
