@@ -16,7 +16,7 @@ Description : Function Calling 工具集
 from functools import lru_cache
 
 from cdss.core.logging import get_logger
-from cdss.tools import clinical_scoring, clinical_treatment
+from cdss.tools import clinical_scoring, clinical_treatment, knowledge_search
 from cdss.tools.registry import ToolRegistry
 
 
@@ -29,6 +29,7 @@ def get_tool_registry() -> ToolRegistry:
     registry = ToolRegistry()
     clinical_scoring.register_all(registry)
     clinical_treatment.register_all(registry)
+    knowledge_search.register_all(registry)
     logger.info(
         "tool_registry_initialized",
         tools=[t.name for t in registry.list_all()],

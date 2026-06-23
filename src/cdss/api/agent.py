@@ -36,7 +36,7 @@ async def assess_patient(
     prompts: PromptRegistry = Depends(get_prompt_registry),
 ) -> AgentRunResult:
     """运行工具增强的患者评估。"""
-    template = prompts.get("cap_system_prompt_v1")
+    template = prompts.get("knowledge-search-v1")
     messages = template.render(patient_info=request.patient_info)
 
     try:
